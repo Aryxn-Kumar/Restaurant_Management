@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <title>Staff Management</title>
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h2>Staff Management</h2>
+
+        <!-- Add Staff Form -->
+        <form method="POST" action="/add_staff">
+            <h3>Add Staff</h3>
+            <table class="table">
+                <tr>
+                    <td>Name:</td>
+                    <td><input type="text" name="staff_name" required></td>
+                </tr>
+                <tr>
+                    <td>Number:</td>
+                    <td><input type="number" name="staff_number" required></td>
+                </tr>
+                <tr>
+                    <td>Designation:</td>
+                    <td>
+                        <select name="staff_designation" required>
+                            <option value="waiter">Waiter</option>
+                            <option value="manager">Manager</option>
+                            <option value="chef">Chef</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Salary:</td>
+                    <td><input type="number" name="staff_salary" required></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><input type="submit" value="Add Staff"></td>
+                </tr>
+            </table>
+        </form>
+
+        <!-- Update Staff Form -->
+        <form method="POST" action="/update_staff">
+            <h3>Update Staff</h3>
+            <table class="table">
+                <tr>
+                    <td>ID:</td>
+                    <td><input type="number" name="staff_id" required></td>
+                </tr>
+                <tr>
+                    <td>Name:</td>
+                    <td><input type="text" name="staff_name" required></td>
+                </tr>
+                <tr>
+                    <td>Number:</td>
+                    <td><input type="number" name="staff_number" required></td>
+                </tr>
+                <tr>
+                    <td>Designation:</td>
+                    <td>
+                        <select name="staff_designation" required>
+                            <option value="waiter">Waiter</option>
+                            <option value="manager">Manager</option>
+                            <option value="chef">Chef</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Salary:</td>
+                    <td><input type="number" name="staff_salary" required></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><input type="submit" value="Update Staff"></td>
+                </tr>
+            </table>
+        </form>
+
+        <h3>Staff List</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Number</th>
+                    <th>Designation</th>
+                    <th>Salary</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in staff %}
+                    <tr>
+                        <td>{{ row[0] }}</td>
+                        <td>{{ row[1] }}</td>
+                        <td>{{ row[2] }}</td>
+                        <td>{{ row[3] }}</td>
+                        <td>{{ row[4] }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

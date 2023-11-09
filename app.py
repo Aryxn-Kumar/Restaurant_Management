@@ -55,9 +55,69 @@ def register():
 
     return render_template('register.html')
 
-@app.route('/homepage')
+@app.route('/homepage', methods=['GET', 'POST'])
 def homepage():
+    if request.method == 'POST':
+        # Handle POST requests for the homepage if needed
+        pass
     return render_template('homepage.html')
+
+@app.route('/staff', methods=['GET', 'POST'])
+def staff():
+    if request.method == 'POST':
+        # Handle staff-related operations here, e.g., adding new staff
+        staff_name = request.form['staff_name']
+        staff_number = request.form['staff_number']
+        staff_designation = request.form['staff_designation']
+        staff_salary = request.form['staff_salary']
+        
+        # Insert the new staff into the database
+        cursor = db.connection.cursor()
+        cursor.execute("INSERT INTO staff (staff_name, staff_number, staff_designation, staff_salary) VALUES (%s, %s, %s, %s)",
+                       (staff_name, staff_number, staff_designation, staff_salary))
+        db.connection.commit()
+        cursor.close()
+    
+    # Fetch the list of staff from the database to display in the template
+    cursor = db.connection.cursor()
+    cursor.execute("SELECT * FROM staff")
+    staff_data = cursor.fetchall()
+    cursor.close()
+
+    return render_template('staff.html', staff=staff_data)
+
+@app.route('/add_staff', methods=['POST'])
+def add_staff():
+    if request.method == 'POST':
+        staff_name = request.form['staff_name']
+        staff_number = request.form['staff_number']
+        staff_designation = request.form['staff_designation']
+        staff_salary = request.form['staff_salary']
+
+        cursor = db.connection.cursor()
+        cursor.execute("INSERT INTO staff (staff_name, staff_number, staff_designation, staff_salary) VALUES (%s, %s, %s, %s)",
+                       (staff_name, staff_number, staff_designation, staff_salary))
+        db.connection.commit()
+        cursor.close()
+
+    return redirect('/staff')
+
+@app.route('/update_staff', methods=['POST'])
+def update_staff():
+    if request.method == 'POST':
+        staff_id = request.form['staff_id']
+        staff_name = request.form['staff_name']
+        staff_number = request.form['staff_number']
+        staff_designation = request.form['staff_designation']
+        staff_salary = request.form['staff_salary']
+
+        cursor = db.connection.cursor()
+        cursor.execute("UPDATE staff SET staff_name = %s, staff_number = %s, staff_designation = %s, staff_salary = %s WHERE staff_id = %s",
+                       (staff_name, staff_number, staff_designation, staff_salary, staff_id))
+        db.connection.commit()
+        cursor.close()
+
+    return redirect('/staff')
 
 if __name__ == "__main__":
     app.run(debug=True)
