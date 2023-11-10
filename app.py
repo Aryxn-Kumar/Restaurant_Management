@@ -119,5 +119,38 @@ def update_staff():
 
     return redirect('/staff')
 
+@app.route('/customers', methods=['GET', 'POST'])
+def customers():
+    if request.method == 'POST':
+        if 'add_customer' in request.form:
+            # Handle adding a new customer
+            customer_name = request.form['customer_name']
+            customer_number = request.form['customer_number']
+            customer_email = request.form['customer_email']
+            customer_address = request.form['customer_address']
+
+            cursor = db.connection.cursor()
+            cursor.execute("INSERT INTO customer (customer_name, customer_number, customer_email, customer_address) VALUES (%s, %s, %s, %s)",
+                           (customer_name, customer_number, customer_email, customer_address))
+            db.connection.commit()
+            cursor.close()
+
+        elif 'delete_customer' in request.form:
+            # Handle deleting a customer
+            customer_id = request.form['customer_id']
+
+            cursor = db.connection.cursor()
+            cursor.execute("DELETE FROM customer WHERE customer_id = %s", (customer_id,))
+            db.connection.commit()
+            cursor.close()
+
+    cursor = db.connection.cursor()
+    cursor.execute("SELECT * FROM customer")
+    customer_data = cursor.fetchall()
+    cursor.close()
+
+    return render_template('customers.html', customers=customer_data)
+
+    
 if __name__ == "__main__":
     app.run(debug=True)
