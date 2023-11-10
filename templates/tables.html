@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <title>Table Management</title>
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h2>Table Management</h2>
+
+        <!-- Add Reservation Form -->
+        <form method="POST" action="/tables">
+            <h3>Add Reservation</h3>
+            <table class="table">
+                <tr>
+                    <td>Party Size:</td>
+                    <td><input type="text" name="party_size" required></td>
+                </tr>
+                <tr>
+                    <td>Reservation Date:</td>
+                    <td><input type="date" name="reservation_date" required></td>
+                </tr>
+                <tr>
+                    <td>Table ID:</td>
+                    <td><input type="number" name="table_id" required></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><input type="submit" name="add_reservation" value="Add Reservation"></td>
+                </tr>
+            </table>
+        </form>
+
+        <!-- Assign Waiter Form -->
+        <form method="POST" action="/tables">
+            <h3>Assign Waiter to Table</h3>
+            <table class="table">
+                <tr>
+                    <td>Table ID:</td>
+                    <td><input type="number" name="assign_table_id" required></td>
+                </tr>
+                <tr>
+                    <td>Waiter ID:</td>
+                    <td>
+                        <select name="assign_waiter_id" required>
+                            {% for waiter in waiters %}
+                                <option value="{{ waiter[0] }}">{{ waiter[1] }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2"><input type="submit" name="assign_waiter" value="Assign Waiter"></td>
+                </tr>
+            </table>
+        </form>
+
+        <h3>Table List</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Capacity</th>
+                    <th>Booking Status</th>
+                    <th>Assigned Waiter ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in tables %}
+                    <tr>
+                        <td>{{ row[0] }}</td>
+                        <td>{{ row[1] }}</td>
+                        <td>{{ row[2] }}</td>
+                        <td>{{ row[3] }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h3>Reservations</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Party Size</th>
+                    <th>Reservation Date</th>
+                    <th>Table ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in reservations %}
+                    <tr>
+                        <td>{{ row[0] }}</td>
+                        <td>{{ row[1] }}</td>
+                        <td>{{ row[2] }}</td>
+                        <td>{{ row[3] }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h3>Table Assignments</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Assignment ID</th>
+                    <th>Table ID</th>
+                    <th>Waiter ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in assignments %}
+                    <tr>
+                        <td>{{ row[0] }}</td>
+                        <td>{{ row[1] }}</td>
+                        <td>{{ row[2] }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

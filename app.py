@@ -151,6 +151,54 @@ def customers():
 
     return render_template('customers.html', customers=customer_data)
 
+@app.route('/tables', methods=['GET', 'POST'])
+def tables():
+    if request.method == 'POST':
+        if 'add_reservation' in request.form:
+            # Handle adding a new reservation
+            party_size = request.form['party_size']
+            reservation_date = request.form['reservation_date']
+            table_id = request.form['table_id']
+
+            cursor = db.connection.cursor()
+            cursor.execute("INSERT INTO reservation (party_size, reservation_date, table_id) VALUES (%s, %s, %s)",
+                           (party_size, reservation_date, table_id))
+            db.connection.commit()
+            cursor.close()
+
+        elif 'assign_waiter' in request.form:
+            # Handle assigning a waiter to a table
+            table_id = request.form['assign_table_id']
+            waiter_id = request.form['assign_waiter_id']
+
+            # Check if the waiter is not already assigned to a table
+            cursor = db.connection.cursor()
+            cursor.execute("SELECT * FROM table_assignments WHERE waiter_id = %s", (waiter_id,))
+            assigned_table = cursor.fetchone()
+
+            if not assigned_table:
+                # Assign the waiter to the table
+                cursor.execute("INSERT INTO table_assignments (table_id, waiter_id) VALUES (%s, %s)",
+                               (table_id, waiter_id))
+                db.connection.commit()
+            cursor.close()
+
+    # Fetch data for displaying in the template
+    cursor = db.connection.cursor()
+    cursor.execute("SELECT * FROM table_")
+    table_data = cursor.fetchall()
+
+    cursor.execute("SELECT * FROM reservation")
+    reservation_data = cursor.fetchall()
+
+    cursor.execute("SELECT * FROM table_assignments")
+    assignment_data = cursor.fetchall()
+
+    cursor.execute("SELECT staff_id, staff_name FROM staff WHERE staff_designation = 'waiter'")
+    waiter_data = cursor.fetchall()
+    cursor.close()
+
+    return render_template('tables.html', tables=table_data, reservations=reservation_data,assignments=assignment_data, waiters=waiter_data)
     
 if __name__ == "__main__":
     app.run(debug=True)
