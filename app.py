@@ -151,54 +151,75 @@ def customers():
 
     return render_template('customers.html', customers=customer_data)
 
+# ... (previous code)
+
 @app.route('/tables', methods=['GET', 'POST'])
 def tables():
     if request.method == 'POST':
-        if 'add_reservation' in request.form:
-            # Handle adding a new reservation
+        if 'reserve_table' in request.form:
+            # Handle table reservation
             party_size = request.form['party_size']
             reservation_date = request.form['reservation_date']
-            table_id = request.form['table_id']
 
+            # Assign the first available table
             cursor = db.connection.cursor()
-            cursor.execute("INSERT INTO reservation (party_size, reservation_date, table_id) VALUES (%s, %s, %s)",
-                           (party_size, reservation_date, table_id))
-            db.connection.commit()
+            cursor.execute("SELECT table_id FROM table_ WHERE assignment_id IS NULL LIMIT 1")
+            available_table = cursor.fetchone()
+
+            if available_table:
+                table_id = available_table[0]
+                cursor.execute("INSERT INTO reservation (party_size, reservation_date, table_id) VALUES (%s, %s, %s)",
+                               (party_size, reservation_date, table_id))
+                db.connection.commit()
+            else:
+                return "No available tables for reservation."
+                
             cursor.close()
 
         elif 'assign_waiter' in request.form:
-            # Handle assigning a waiter to a table
-            table_id = request.form['assign_table_id']
-            waiter_id = request.form['assign_waiter_id']
+            # Handle waiter assignment
+            waiter_id = request.form['waiter_id']
+            table_id = request.form['table_id']
 
-            # Check if the waiter is not already assigned to a table
             cursor = db.connection.cursor()
             cursor.execute("SELECT * FROM table_assignments WHERE waiter_id = %s", (waiter_id,))
             assigned_table = cursor.fetchone()
 
-            if not assigned_table:
-                # Assign the waiter to the table
+            if assigned_table:
+                return "Waiter is already assigned to a table."
+            else:
                 cursor.execute("INSERT INTO table_assignments (table_id, waiter_id) VALUES (%s, %s)",
                                (table_id, waiter_id))
                 db.connection.commit()
-            cursor.close()
+                cursor.close()
 
-    # Fetch data for displaying in the template
     cursor = db.connection.cursor()
-    cursor.execute("SELECT * FROM table_")
-    table_data = cursor.fetchall()
-
-    cursor.execute("SELECT * FROM reservation")
-    reservation_data = cursor.fetchall()
-
-    cursor.execute("SELECT * FROM table_assignments")
-    assignment_data = cursor.fetchall()
-
-    cursor.execute("SELECT staff_id, staff_name FROM staff WHERE staff_designation = 'waiter'")
-    waiter_data = cursor.fetchall()
+    cursor.execute("""
+        SELECT
+            r.reservation_id,
+            r.party_size,
+            r.reservation_date,
+            r.table_id,
+            t.waiter_id
+        FROM
+            reservation r
+            LEFT JOIN table_assignments t ON r.table_id = t.table_id
+    """)
+    reservations_data = cursor.fetchall()
     cursor.close()
 
-    return render_template('tables.html', tables=table_data, reservations=reservation_data,assignments=assignment_data, waiters=waiter_data)
+    cursor = db.connection.cursor()
+    cursor.execute("SELECT * FROM table_")
+    tables_data = cursor.fetchall()
+
+    cursor.execute("SELECT * FROM staff WHERE staff_designation = 'waiter'")
+    waiters_data = cursor.fetchall()
+    cursor.close()
+
+    return render_template('tables.html', tables_data=tables_data, waiters_data=waiters_data, reservations_data=reservations_data)
+
+# ... (other routes)
+
     
 if __name__ == "__main__":
     app.run(debug=True)
