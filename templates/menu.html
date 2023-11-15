@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <title>Menu Management</title>
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h2>Menu Management</h2>
+
+        <!-- Add Menu Item Form -->
+        <form method="POST" action="/menu">
+            <h3>Add Menu Item</h3>
+            <table class="table">
+                <tr>
+                    <td>Name:</td>
+                    <td><input type="text" name="menu_name" required></td>
+                </tr>
+                <tr>
+                    <td>Price:</td>
+                    <td><input type="number" name="menu_price" required></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><input type="submit" name="add_menu" value="Add Menu Item"></td>
+                </tr>
+            </table>
+        </form>
+
+        <!-- Delete Menu Item Form -->
+        <form method="POST" action="/menu">
+            <h3>Delete Menu Item</h3>
+            <table class="table">
+                <tr>
+                    <td>ID:</td>
+                    <td><input type="number" name="menu_id" required></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><input type="submit" name="delete_menu" value="Delete Menu Item"></td>
+                </tr>
+            </table>
+        </form>
+
+        <h3>Menu List</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                </thead>
+                <tbody>
+                    {% for row in menu %}
+                        <tr>
+                            <td>{{ row[0] }}</td>
+                            <td>{{ row[1] }}</td>
+                            <td>{{ row[2] }}</td>
+                            <td>{{ row[3] }}</td>
+                            <td>{{ row[4] }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+        </table>
+    </div>
+{% endblock %}

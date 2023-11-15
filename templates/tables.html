@@ -34,7 +34,7 @@
                     <td>Table ID:</td>
                     <td>
                         <select name="table_id" required>
-                            {% for row in tables %}
+                            {% for row in tables_data %}
                                 <option value="{{ row[0] }}">{{ row[0] }}</option>
                             {% endfor %}
                         </select>
@@ -44,7 +44,7 @@
                     <td>Waiter ID:</td>
                     <td>
                         <select name="waiter_id" required>
-                            {% for row in waiters %}
+                            {% for row in waiters_data %}
                                 <option value="{{ row[0] }}">{{ row[0] }} - {{ row[1] }}</option>
                             {% endfor %}
                         </select>
@@ -52,6 +52,24 @@
                 </tr>
                 <tr>
                     <td colspan="2"><input type="submit" name="assign_waiter" value="Assign Waiter"></td>
+                </tr>
+            </table>
+        </form>
+
+        <!-- Add Table Form -->
+        <form method="POST" action="/tables">
+            <h3>Add Table</h3>
+            <table class="table">
+                <tr>
+                    <td>Employee Capacity:</td>
+                    <td><input type="text" name="employee_capacity" required></td>
+                </tr>
+                <tr>
+                    <td>Employee Booking:</td>
+                    <td><input type="text" name="employee_booking" required></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><input type="submit" name="add_table" value="Add Table"></td>
                 </tr>
             </table>
         </form>
@@ -68,7 +86,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for row in reservations %}
+                {% for row in reservations_data %}
                     <tr>
                         <td>{{ row[0] }}</td>
                         <td>{{ row[1] }}</td>

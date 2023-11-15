@@ -218,8 +218,115 @@ def tables():
 
     return render_template('tables.html', tables_data=tables_data, waiters_data=waiters_data, reservations_data=reservations_data)
 
-# ... (other routes)
+@app.route('/menu', methods=['GET', 'POST'])
+def menu():
+    if request.method == 'POST':
+        if 'add_menu' in request.form:
+            # Handle adding a new menu item
+            menu_name = request.form['menu_name']
+            menu_price = request.form['menu_price']
 
-    
+            cursor = db.connection.cursor()
+            cursor.execute("INSERT INTO menu (menu_name, menu_price) VALUES (%s, %s)", (menu_name, menu_price))
+            db.connection.commit()
+            cursor.close()
+
+        elif 'delete_menu' in request.form:
+            # Handle deleting a menu item
+            menu_id = request.form['menu_id']
+
+            cursor = db.connection.cursor()
+            cursor.execute("DELETE FROM menu WHERE menu_id = %s", (menu_id,))
+            db.connection.commit()
+            cursor.close()
+
+    # Fetch menu items
+    cursor = db.connection.cursor()
+    cursor.execute("SELECT * FROM menu")
+    menu_data = cursor.fetchall()
+    cursor.close()
+
+    return render_template('menu.html', menu=menu_data)
+   
+   
+@app.route('/tables', methods=['POST'])
+def add_table():
+    if 'add_table' in request.form:
+        employee_capacity = request.form['employee_capacity']
+        employee_booking = request.form['employee_booking']
+
+        cursor = db.connection.cursor()
+        cursor.execute("INSERT INTO table_ (employee_capacity, employee_booking) VALUES (%s, %s)", (employee_capacity, employee_booking))
+        db.connection.commit()
+        cursor.close()
+
+    # Rest of your code for fetching and displaying table reservations
+
+    return redirect('/tables')  # Redirect to the same page after handling the form
+
+@app.route('/order', methods=['GET', 'POST'])
+def order():
+    if request.method == 'POST':
+        if 'add_order' in request.form:
+            menu_id = request.form['menu_id']
+            special_request = request.form['special_request']
+            order_quantity = request.form['order_quantity']
+            customer_id = request.form['customer_id']
+
+            # Retrieve additional information about the menu item
+            cursor = db.connection.cursor()
+            cursor.execute("SELECT * FROM menu WHERE menu_id = %s", (menu_id,))
+            menu_info = cursor.fetchone()
+
+            # Add the order to the database
+            cursor.execute("""
+    INSERT INTO order_ (menu_id, special_request, order_quantity, customer_id, table_assignment_id, chef_id)
+    VALUES (
+        %s,
+        %s,
+        %s,
+        %s,
+        (SELECT assignment_id FROM table_assignments WHERE waiter_id IS NOT NULL LIMIT 1),
+        (SELECT staff_id FROM staff WHERE staff_designation = 'chef' LIMIT 1)
+    )
+""", (
+    int(menu_id) if menu_id else None,
+    special_request,
+    int(order_quantity) if order_quantity else None,
+    int(customer_id) if customer_id else None
+))
+
+
+            db.connection.commit()
+            cursor.close()
+
+    # Fetch order information including related data (menu, table, waiter, etc.)
+    cursor = db.connection.cursor()
+    cursor.execute("""
+        SELECT
+            o.order_id,
+            o.special_request,
+            o.order_quantity,
+            o.customer_id,
+            t.table_id,
+            t.waiter_id,
+            m.menu_name,
+            m.menu_price
+        FROM
+            order_ o
+            LEFT JOIN table_assignments t ON o.table_assignment_id = t.assignment_id
+            LEFT JOIN menu m ON o.menu_id = m.menu_id
+    """)
+    orders_data = cursor.fetchall()
+    cursor.close()
+
+    # Fetch menu information
+    cursor = db.connection.cursor()
+    cursor.execute("SELECT * FROM menu")
+    menu_data = cursor.fetchall()
+    cursor.close()
+
+    return render_template('order.html', menu=menu_data, orders=orders_data)
+
 if __name__ == "__main__":
     app.run(debug=True)

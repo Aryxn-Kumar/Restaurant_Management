@@ -89,6 +89,11 @@ CREATE TABLE total_orders_completed (
   total_amount INT
 );
 
+CREATE TABLE login(
+  username VARCHAR(20),
+  password VARCHAR(20)
+);
+
 -- Populate the total_orders_completed table with the daily totals
 INSERT INTO total_orders_completed (date, total_orders_completed, total_amount)
 SELECT
@@ -101,5 +106,22 @@ FROM
 GROUP BY
   order_date;
   
-  
+INSERT INTO menu (menu_name, menu_price) VALUES
+('Classic Burger', 10),
+('Margherita Pizza', 12),
+('Caesar Salad', 8),
+('Spaghetti Bolognese', 15),
+('Grilled Chicken Sandwich', 9),
+('BBQ Ribs', 18),
+('Vegetarian Pizza', 14),
+('Greek Salad', 10),
+('Shrimp Alfredo Pasta', 16),
+('Club Sandwich', 11),
+('Steak', 22),
+('Caprese Salad', 9),
+('Veggie Wrap', 12),
+('Fish and Chips', 14),
+('Chicken Caesar Wrap', 11);
+
+
 Show tables;
