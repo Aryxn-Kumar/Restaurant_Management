@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <title>Table Management</title>
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h2>Table Management</h2>
+
+        <!-- Add Table Form -->
+        <form method="POST" action="/table">
+            <h3>Add Table</h3>
+            <table class="table">
+                <tr>
+                    <td>Employee Capacity:</td>
+                    <td><input type="text" name="employee_capacity" required></td>
+                </tr>
+                <tr>
+                    <td>Employee Booking:</td>
+                    <td><input type="text" name="employee_booking" required></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><input type="submit" name="add_table" value="Add Table"></td>
+                </tr>
+            </table>
+        </form>
+
+        <h3>Table List</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Table ID</th>
+                    <th>Employee Capacity</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in tables_data %}
+                    <tr>
+                        <td>{{ row[0] }}</td>
+                        <td>{{ row[1] }}</td>
+                        <td>
+                            <form method="POST" action="/table">
+                                <input type="hidden" name="table_id" value="{{ row[0] }}">
+                                <input type="submit" name="delete_table" value="Delete">
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
