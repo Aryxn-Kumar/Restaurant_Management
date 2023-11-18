@@ -112,8 +112,7 @@ def update_staff():
         staff_salary = request.form['staff_salary']
 
         cursor = db.connection.cursor()
-        cursor.execute("UPDATE staff SET staff_name = %s, staff_number = %s, staff_designation = %s, staff_salary = %s WHERE staff_id = %s",
-                       (staff_name, staff_number, staff_designation, staff_salary, staff_id))
+        cursor.execute("UPDATE staff SET staff_name = %s, staff_number = %s, staff_designation = %s, staff_salary = %s WHERE staff_id = %s", (staff_name, staff_number, staff_designation, staff_salary, staff_id))
         db.connection.commit()
         cursor.close()
 
@@ -130,8 +129,7 @@ def customers():
             customer_address = request.form['customer_address']
 
             cursor = db.connection.cursor()
-            cursor.execute("INSERT INTO customer (customer_name, customer_number, customer_email, customer_address) VALUES (%s, %s, %s, %s)",
-                           (customer_name, customer_number, customer_email, customer_address))
+            cursor.execute("INSERT INTO customer (customer_name, customer_number, customer_email, customer_address) VALUES (%s, %s, %s, %s)", (customer_name, customer_number, customer_email, customer_address))
             db.connection.commit()
             cursor.close()
 
@@ -151,72 +149,47 @@ def customers():
 
     return render_template('customers.html', customers=customer_data)
 
-# ... (previous code)
+# ...
 
-@app.route('/tables', methods=['GET', 'POST'])
-def tables():
-    if request.method == 'POST':
-        if 'reserve_table' in request.form:
-            # Handle table reservation
-            party_size = request.form['party_size']
-            reservation_date = request.form['reservation_date']
+# @app.route('/reservation', methods=['GET', 'POST'])
+# def create_reservation():
+#     if request.method == 'POST':
+#         customer_name = request.form['customer_name']
+#         table_id = request.form['table_id']
+#         party_size = request.form['party_size']
 
-            # Assign the first available table
-            cursor = db.connection.cursor()
-            cursor.execute("SELECT table_id FROM table_ WHERE assignment_id IS NULL LIMIT 1")
-            available_table = cursor.fetchone()
+#         # Check if the selected table has enough capacity for the party size
+#         cursor = db.connection.cursor()
+#         cursor.execute("SELECT employee_capacity FROM table_ WHERE table_id = %s", (table_id,))
+#         employee_capacity = cursor.fetchone()[0]
+#         cursor.close()
 
-            if available_table:
-                table_id = available_table[0]
-                cursor.execute("INSERT INTO reservation (party_size, reservation_date, table_id) VALUES (%s, %s, %s)",
-                               (party_size, reservation_date, table_id))
-                db.connection.commit()
-            else:
-                return "No available tables for reservation."
-                
-            cursor.close()
+#         if int(party_size) > employee_capacity:
+#             return "Error: Party size exceeds table capacity."
 
-        elif 'assign_waiter' in request.form:
-            # Handle waiter assignment
-            waiter_id = request.form['waiter_id']
-            table_id = request.form['table_id']
+#         # Insert the reservation into the database
+#         cursor = db.connection.cursor()
+#         cursor.execute("INSERT INTO reservation (party_size, table_id) VALUES (%s, %s)", (party_size, table_id))
+#         db.connection.commit()
+#         cursor.close()
 
-            cursor = db.connection.cursor()
-            cursor.execute("SELECT * FROM table_assignments WHERE waiter_id = %s", (waiter_id,))
-            assigned_table = cursor.fetchone()
+#     # Fetch reservations for displaying in the template
+#     cursor = db.connection.cursor()
+#     cursor.execute("SELECT * FROM reservation")
+#     reservations_data = cursor.fetchall()
+#     cursor.close()
 
-            if assigned_table:
-                return "Waiter is already assigned to a table."
-            else:
-                cursor.execute("INSERT INTO table_assignments (table_id, waiter_id) VALUES (%s, %s)",
-                               (table_id, waiter_id))
-                db.connection.commit()
-                cursor.close()
+#     # Fetch customers and tables for the dropdowns
+#     cursor = db.connection.cursor()
+#     cursor.execute("SELECT customer_id, customer_name FROM customer")
+#     customers_data = cursor.fetchall()
 
-    cursor = db.connection.cursor()
-    cursor.execute("""
-        SELECT
-            r.reservation_id,
-            r.party_size,
-            r.reservation_date,
-            r.table_id,
-            t.waiter_id
-        FROM
-            reservation r
-            LEFT JOIN table_assignments t ON r.table_id = t.table_id
-    """)
-    reservations_data = cursor.fetchall()
-    cursor.close()
+#     cursor.execute("SELECT table_id FROM table_")
+#     tables_data = cursor.fetchall()
+#     cursor.close()
 
-    cursor = db.connection.cursor()
-    cursor.execute("SELECT * FROM table_")
-    tables_data = cursor.fetchall()
-
-    cursor.execute("SELECT * FROM staff WHERE staff_designation = 'waiter'")
-    waiters_data = cursor.fetchall()
-    cursor.close()
-
-    return render_template('tables.html', tables_data=tables_data, waiters_data=waiters_data, reservations_data=reservations_data)
+#     return render_template('reservation.html', reservations=reservations_data, customers=customers_data, tables=tables_data)
+# # ...
 
 @app.route('/menu', methods=['GET', 'POST'])
 def menu():
@@ -248,85 +221,116 @@ def menu():
 
     return render_template('menu.html', menu=menu_data)
    
-   
-@app.route('/tables', methods=['POST'])
-def add_table():
-    if 'add_table' in request.form:
-        employee_capacity = request.form['employee_capacity']
-        employee_booking = request.form['employee_booking']
 
-        cursor = db.connection.cursor()
-        cursor.execute("INSERT INTO table_ (employee_capacity, employee_booking) VALUES (%s, %s)", (employee_capacity, employee_booking))
-        db.connection.commit()
-        cursor.close()
+@app.route('/table', methods=['GET', 'POST'])
 
-    # Rest of your code for fetching and displaying table reservations
-
-    return redirect('/tables')  # Redirect to the same page after handling the form
-
-@app.route('/order', methods=['GET', 'POST'])
-def order():
+def tables():
     if request.method == 'POST':
-        if 'add_order' in request.form:
-            menu_id = request.form['menu_id']
-            special_request = request.form['special_request']
-            order_quantity = request.form['order_quantity']
-            customer_id = request.form['customer_id']
+        if 'add_table' in request.form:
+            employee_capacity = request.form['employee_capacity']
+            employee_booking = request.form['employee_booking']
 
-            # Retrieve additional information about the menu item
             cursor = db.connection.cursor()
-            cursor.execute("SELECT * FROM menu WHERE menu_id = %s", (menu_id,))
-            menu_info = cursor.fetchone()
-
-            # Add the order to the database
-            cursor.execute("""
-    INSERT INTO order_ (menu_id, special_request, order_quantity, customer_id, table_assignment_id, chef_id)
-    VALUES (
-        %s,
-        %s,
-        %s,
-        %s,
-        (SELECT assignment_id FROM table_assignments WHERE waiter_id IS NOT NULL LIMIT 1),
-        (SELECT staff_id FROM staff WHERE staff_designation = 'chef' LIMIT 1)
-    )
-""", (
-    int(menu_id) if menu_id else None,
-    special_request,
-    int(order_quantity) if order_quantity else None,
-    int(customer_id) if customer_id else None
-))
-
-
+            cursor.execute("INSERT INTO table_ (employee_capacity, employee_booking) VALUES (%s, %s)", (employee_capacity, employee_booking))
             db.connection.commit()
             cursor.close()
 
-    # Fetch order information including related data (menu, table, waiter, etc.)
+            # Redirect to the same page after handling the form
+            return redirect('/table')
+
+        elif 'delete_table' in request.form:
+            table_id = request.form['table_id']
+
+            cursor = db.connection.cursor()
+
+            try:
+                # Delete reservations associated with the table
+                cursor.execute("DELETE FROM reservation WHERE table_id = %s", (table_id,))
+
+                # Then, delete the table itself
+                cursor.execute("DELETE FROM table_ WHERE table_id = %s", (table_id,))
+
+                db.connection.commit()
+            except Exception as e:
+                print(f"Error: {e}")
+                db.connection.rollback()
+            finally:
+                cursor.close()
+
+            # Redirect back to the /table route after deleting
+            return redirect('/table')
+
     cursor = db.connection.cursor()
-    cursor.execute("""
-        SELECT
-            o.order_id,
-            o.special_request,
-            o.order_quantity,
-            o.customer_id,
-            t.table_id,
-            t.waiter_id,
-            m.menu_name,
-            m.menu_price
-        FROM
-            order_ o
-            LEFT JOIN table_assignments t ON o.table_assignment_id = t.assignment_id
-            LEFT JOIN menu m ON o.menu_id = m.menu_id
-    """)
-    orders_data = cursor.fetchall()
+    cursor.execute("SELECT * FROM table_")
+    tables_data = cursor.fetchall()
     cursor.close()
 
-    # Fetch menu information
-    cursor = db.connection.cursor()
-    cursor.execute("SELECT * FROM menu")
-    menu_data = cursor.fetchall()
-    cursor.close()
+    return render_template('table.html', tables_data=tables_data)
 
-    return render_template('order.html', menu=menu_data, orders=orders_data)
+
+# @app.route('/order', methods=['GET', 'POST'])
+# def order():
+#     if request.method == 'POST':
+#         if 'add_order' in request.form:
+#             menu_id = request.form['menu_id']
+#             special_request = request.form['special_request']
+#             order_quantity = request.form['order_quantity']
+#             customer_id = request.form['customer_id']
+
+#             # Retrieve additional information about the menu item
+#             cursor = db.connection.cursor()
+#             cursor.execute("SELECT * FROM menu WHERE menu_id = %s", (menu_id,))
+#             menu_info = cursor.fetchone()
+
+#             # Add the order to the database
+#             cursor.execute("""
+#     INSERT INTO order_ (menu_id, special_request, order_quantity, customer_id, table_assignment_id, chef_id)
+#     VALUES (
+#         %s,
+#         %s,
+#         %s,
+#         %s,
+#         (SELECT assignment_id FROM table_assignments WHERE waiter_id IS NOT NULL LIMIT 1),
+#         (SELECT staff_id FROM staff WHERE staff_designation = 'chef' LIMIT 1)
+#     )
+# """, (
+#     int(menu_id) if menu_id else None,
+#     special_request,
+#     int(order_quantity) if order_quantity else None,
+#     int(customer_id) if customer_id else None
+# ))
+
+
+#             db.connection.commit()
+#             cursor.close()
+
+#     # Fetch order information including related data (menu, table, waiter, etc.)
+#     cursor = db.connection.cursor()
+#     cursor.execute("""
+#         SELECT
+#             o.order_id,
+#             o.special_request,
+#             o.order_quantity,
+#             o.customer_id,
+#             t.table_id,
+#             t.waiter_id,
+#             m.menu_name,
+#             m.menu_price
+#         FROM
+#             order_ o
+#             LEFT JOIN table_assignments t ON o.table_assignment_id = t.assignment_id
+#             LEFT JOIN menu m ON o.menu_id = m.menu_id
+#     """)
+#     orders_data = cursor.fetchall()
+#     cursor.close()
+
+#     # Fetch menu information
+#     cursor = db.connection.cursor()
+#     cursor.execute("SELECT * FROM menu")
+#     menu_data = cursor.fetchall()
+#     cursor.close()
+
+#     return render_template('order.html', menu=menu_data, orders=orders_data)
 
 if __name__ == "__main__":
     app.run(debug=True)
