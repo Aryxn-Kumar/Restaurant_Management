@@ -23,30 +23,24 @@ CREATE TABLE staff (
   chef_hierarchy ENUM('sous chef', 'head chef', 'executive chef')
 );
 
--- Create the table_assignments table
-CREATE TABLE table_assignments (
-  assignment_id INT AUTO_INCREMENT PRIMARY KEY,
-  table_id INT,
-  waiter_id INT,
-  FOREIGN KEY (table_id) REFERENCES table_(table_id),
-  FOREIGN KEY (waiter_id) REFERENCES staff(staff_id) -- Corrected reference to staff(staff_id)
-);
-
 -- Create the table_ table
 CREATE TABLE table_ (
   table_id INT AUTO_INCREMENT PRIMARY KEY,
   employee_capacity INT,
-  employee_booking VARCHAR(255),
-  assignment_id INT
+  employee_booking VARCHAR(255)
 );
 
 -- Create the reservation table
 CREATE TABLE reservation (
   reservation_id INT AUTO_INCREMENT PRIMARY KEY,
-  party_size VARCHAR(255),
+  party_size INT,
   reservation_date DATE,
   table_id INT,
-  FOREIGN KEY (table_id) REFERENCES table_(table_id)
+  customer_id INT,
+  waiter_id INT,
+  FOREIGN KEY (table_id) REFERENCES table_(table_id),
+  FOREIGN KEY (customer_id) REFERENCES customer(customer_id),
+  FOREIGN KEY (waiter_id) REFERENCES staff(staff_id)
 );
 
 -- Create the customer_review table for staff
@@ -74,10 +68,10 @@ CREATE TABLE order_ (
   order_date DATE,
   order_quantity INT,
   customer_id INT,
-  table_assignment_id INT,
+  table_id INT,
   chef_id INT,
   FOREIGN KEY (customer_id) REFERENCES customer(customer_id),
-  FOREIGN KEY (table_assignment_id) REFERENCES table_assignments(assignment_id),
+  FOREIGN KEY (table_id) REFERENCES table_(table_id),
   FOREIGN KEY (chef_id) REFERENCES staff(staff_id),
   FOREIGN KEY (menu_id) REFERENCES menu(menu_id)
 );
@@ -89,9 +83,17 @@ CREATE TABLE total_orders_completed (
   total_amount INT
 );
 
-CREATE TABLE login(
+-- Create the login table
+CREATE TABLE login (
   username VARCHAR(20),
   password VARCHAR(20)
+);
+
+CREATE TABLE table_assignments (
+  assignment_id INT AUTO_INCREMENT PRIMARY KEY,
+  table_id INT,
+  waiter_id INT,
+  FOREIGN KEY (table_id) REFERENCES table_(table_id)
 );
 
 -- Populate the total_orders_completed table with the daily totals
@@ -106,6 +108,7 @@ FROM
 GROUP BY
   order_date;
   
+-- Insert sample menu items
 INSERT INTO menu (menu_name, menu_price) VALUES
 ('Classic Burger', 10),
 ('Margherita Pizza', 12),
@@ -123,5 +126,58 @@ INSERT INTO menu (menu_name, menu_price) VALUES
 ('Fish and Chips', 14),
 ('Chicken Caesar Wrap', 11);
 
+-- Dummy data for customer table
+INSERT INTO customer (customer_name, customer_number, customer_email, customer_address)
+VALUES
+('John Doe', 123456789, 'john.doe@example.com', '123 Main St'),
+('Jane Smith', 987654321, 'jane.smith@example.com', '456 Oak St');
 
-Show tables;
+-- Dummy data for staff table
+INSERT INTO staff (staff_name, staff_number, staff_designation, staff_salary, chef_hierarchy)
+VALUES
+('Waiter 1', 111, 'waiter', 2500, NULL),
+('Chef 1', 222, 'chef', 5000, 'head chef');
+
+-- Dummy data for table_ table
+INSERT INTO table_ (employee_capacity, employee_booking)
+VALUES
+(4, 'No'),
+(6, 'Yes');
+
+-- Dummy data for reservation table
+INSERT INTO reservation (party_size, reservation_date, table_id, customer_id, waiter_id)
+VALUES
+(3, '2023-11-28', 1, 1, 1),
+(5, '2023-11-29', 2, 2, 1);
+
+-- Dummy data for staff_review table
+INSERT INTO staff_review (staff_id, customer_id, review_text)
+VALUES
+(2, 1, 'Great service by Chef 1'),
+(1, 2, 'Waiter 1 was very attentive');
+
+-- Dummy data for menu table
+INSERT INTO menu (menu_name, menu_price)
+VALUES
+('Burger', 10),
+('Pizza', 12),
+('Salad', 8);
+
+-- Dummy data for order_ table
+INSERT INTO order_ (special_request, menu_id, order_date, order_quantity, customer_id, table_id, chef_id)
+VALUES
+('No onions', 1, '2023-11-28', 2, 1, 1, 2),
+(NULL, 2, '2023-11-29', 1, 2, 2, 2);
+
+-- Dummy data for total_orders_completed table
+INSERT INTO total_orders_completed (date, total_orders_completed, total_amount)
+VALUES
+('2023-11-28', 2, 30),
+('2023-11-29', 1, 12);
+
+-- Dummy data for login table
+INSERT INTO login (username, password)
+VALUES
+('john_doe', 'password1'),
+('jane_smith', 'password2');
+
