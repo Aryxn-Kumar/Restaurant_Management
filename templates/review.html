@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <title>Staff Reviews</title>
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h2>Staff Reviews</h2>
+
+        <!-- Add Review Form -->
+        <form method="POST" action="/review">
+            <label for="customer_id">Customer ID:</label>
+            <input type="text" name="customer_id" required>
+            
+            <label for="staff_id">Staff ID:</label>
+            <input type="text" name="staff_id" required>
+            
+            <input type="submit" name="add_review" value="Add Review">
+        </form>
+
+        {% if tables_data %}
+            <h3>Reviews List</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Review ID</th>
+                        <th>Customer ID</th>
+                        <th>Staff ID</th>
+                        <th>Review Text</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in tables_data %}
+                        <tr>
+                            <td>{{ row[0] }}</td>
+                            <td>{{ row[1] }}</td>
+                            <td>{{ row[2] }}</td>
+                            <td>{{ row[3] }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+{% endblock %}

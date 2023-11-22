@@ -226,27 +226,26 @@ def menu():
 
     return render_template('menu.html', menu=menu_data)
    
-# @app.route('/review',methods= ['GET','POST'])
-# def review():
-#     if request.method  == 'POST':
-#         if 'add_review' in request.form:
-#             customer_id=request.form['customer_id']
-#             staff_id=request.form['staff_id']
-            
-#             cursor = db.connection.cursor()
-#             cursor.execute("INSERT INTO staff_review (customer_id, staff_id) VALUES (%s,%s)", (customer_id,staff_id))
-#             db.connection.commit()
-#             cursor.close()
-                       
-#             return redirect('/review')        
-#     cursor = db.connection.cursor()
-    
-#     cursor.execute("SELECT * FROM staff_review")
-#     tables_data = cursor.fetchall()
-#     cursor.close()
+@app.route('/review', methods=['GET', 'POST'])
+def review():
+    if request.method == 'POST':
+        if 'add_review' in request.form:
+            customer_id = request.form['customer_id']
+            staff_id = request.form['staff_id']
 
-#     return render_template('review.html', tables_data=tables_data)
-      
+            cursor = db.connection.cursor()
+            cursor.execute("INSERT INTO staff_review (customer_id, staff_id) VALUES (%s,%s)", (customer_id, staff_id))
+            db.connection.commit()
+            cursor.close()
+
+            return redirect('/review')
+
+    cursor = db.connection.cursor()
+    cursor.execute("SELECT * FROM staff_review")
+    tables_data = cursor.fetchall()
+    cursor.close()
+
+    return render_template('review.html', tables_data=tables_data)      
           
 @app.route('/table', methods=['GET', 'POST'])
 def tables():
