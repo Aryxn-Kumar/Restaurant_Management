@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <title>Create Reservation</title>
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h2>Create Reservation</h2>
+
+        <!-- Reservation Form -->
+        <form method="POST" action="/reservation">
+            <table class="table">
+                <tr>
+                    <td>Party Size:</td>
+                    <td><input type="number" name="party_size" min="1" required></td>
+                </tr>
+                <tr>
+                    <td>Reservation Date:</td>
+                    <td><input type="date" name="reservation_date" required></td>
+                </tr>
+                <tr>
+                    <td>Customer ID:</td>
+                    <td>
+                        <select name="customer_id" required>
+                            {% for customer in customers %}
+                                <option value="{{ customer[0] }}">{{ customer[1] }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Table ID:</td>
+                    <td>
+                        <select name="table_id" required>
+                            {% for table in tables %}
+                                <option value="{{ table[0] }}">{{ table[0] }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2"><input type="submit" name="create_reservation" value="Create Reservation"></td>
+                </tr>
+            </table>
+        </form>
+
+        {% if reservations %}
+            <h3>Reservation List</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Reservation ID</th>
+                        <th>Reservation Date</th>
+                        <th>Table ID</th>
+                        <th>Party Size</th>
+                        <th>Customer ID</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in reservations %}
+                        <tr>
+                            <td>{{ row[0] }}</td>
+                            <td>{{ row[1] }}</td>
+                            <td>{{ row[2] }}</td>
+                            <td>{{ row[3] }}</td>
+                            <td>{{ row[4] }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+{% endblock %}
