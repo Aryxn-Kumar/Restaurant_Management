@@ -232,9 +232,10 @@ def review():
         if 'add_review' in request.form:
             customer_id = request.form['customer_id']
             staff_id = request.form['staff_id']
+            review_text = request.form['review_text']
 
             cursor = db.connection.cursor()
-            cursor.execute("INSERT INTO staff_review (customer_id, staff_id) VALUES (%s,%s)", (customer_id, staff_id))
+            cursor.execute("INSERT INTO staff_review (customer_id, staff_id,review_text ) VALUES (%s,%s,%s)", (customer_id, staff_id,review_text))
             db.connection.commit()
             cursor.close()
 
@@ -292,69 +293,69 @@ def tables():
     return render_template('table.html', tables_data=tables_data)
 
 
-# @app.route('/order', methods=['GET', 'POST'])
-# def order():
-#     if request.method == 'POST':
-#         if 'add_order' in request.form:
-#             menu_id = request.form['menu_id']
-#             special_request = request.form['special_request']
-#             order_quantity = request.form['order_quantity']
-#             customer_id = request.form['customer_id']
+@app.route('/order', methods=['GET', 'POST'])
+def order():
+    if request.method == 'POST':
+        if 'add_order' in request.form:
+            menu_id = request.form['menu_id']
+            special_request = request.form['special_request']
+            order_quantity = request.form['order_quantity']
+            customer_id = request.form['customer_id']
 
-#             # Retrieve additional information about the menu item
-#             cursor = db.connection.cursor()
-#             cursor.execute("SELECT * FROM menu WHERE menu_id = %s", (menu_id,))
-#             menu_info = cursor.fetchone()
+            # Retrieve additional information about the menu item
+            cursor = db.connection.cursor()
+            cursor.execute("SELECT * FROM menu WHERE menu_id = %s", (menu_id,))
+            menu_info = cursor.fetchone()
 
-#             # Add the order to the database
-#             cursor.execute("""
-#     INSERT INTO order_ (menu_id, special_request, order_quantity, customer_id, table_assignment_id, chef_id)
-#     VALUES (
-#         %s,
-#         %s,
-#         %s,
-#         %s,
-#         (SELECT assignment_id FROM table_assignments WHERE waiter_id IS NOT NULL LIMIT 1),
-#         (SELECT staff_id FROM staff WHERE staff_designation = 'chef' LIMIT 1)
-#     )
-# """, (
-#     int(menu_id) if menu_id else None,
-#     special_request,
-#     int(order_quantity) if order_quantity else None,
-#     int(customer_id) if customer_id else None
-# ))
+            # Add the order to the database
+            cursor.execute("""
+    INSERT INTO order_ (menu_id, special_request, order_quantity, customer_id, table_assignment_id, chef_id)
+    VALUES (
+        %s,
+        %s,
+        %s,
+        %s,
+        (SELECT assignment_id FROM table_assignments WHERE waiter_id IS NOT NULL LIMIT 1),
+        (SELECT staff_id FROM staff WHERE staff_designation = 'chef' LIMIT 1)
+    )
+""", (
+    int(menu_id) if menu_id else None,
+    special_request,
+    int(order_quantity) if order_quantity else None,
+    int(customer_id) if customer_id else None
+))
 
 
-#             db.connection.commit()
-#             cursor.close()
+            db.connection.commit()
+            cursor.close()
 
-#     # Fetch order information including related data (menu, table, waiter, etc.)
-#     cursor = db.connection.cursor()
-#     cursor.execute("""
-#         SELECT
-#             o.order_id,
-#             o.special_request,
-#             o.order_quantity,
-#             o.customer_id,
-#             t.table_id,
-#             t.waiter_id,
-#             m.menu_name,
-#             m.menu_price
-#         FROM
-#             order_ o
-#             LEFT JOIN table_assignments t ON o.table_assignment_id = t.assignment_id
-#             LEFT JOIN menu m ON o.menu_id = m.menu_id
-#     """)
-#     orders_data = cursor.fetchall()
-#     cursor.close()
+    # Fetch order information including related data (menu, table, waiter, etc.)
+    cursor = db.connection.cursor()
+    cursor.execute("""
+        SELECT
+            o.order_id,
+            o.special_request,
+            o.order_quantity,
+            o.customer_id,
+            t.table_id,
+            t.waiter_id,
+            m.menu_name,
+            m.menu_price
+        FROM
+            order_ o
+            LEFT JOIN table_assignments t ON o.table_assignment_id = t.assignment_id
+            LEFT JOIN menu m ON o.menu_id = m.menu_id
+    """)
+    orders_data = cursor.fetchall()
+    cursor.close()
 
-#     # Fetch menu information
-#     cursor = db.connection.cursor()
-#     cursor.execute("SELECT * FROM menu")
-#     menu_data = cursor.fetchall()
-#     cursor.close()
+    # Fetch menu information
+    cursor = db.connection.cursor()
+    cursor.execute("SELECT * FROM menu")
+    menu_data = cursor.fetchall()
+    cursor.close()
 
-#     return render_template('order.html', menu=menu_data, orders=orders_data)
+    return render_template('order.html', menu=menu_data, order=orders_data)
 
 
 

@@ -108,6 +108,10 @@ FROM
 GROUP BY
   order_date;
   
+DELIMITER //
+
+
+  
 -- Insert sample menu items
 INSERT INTO menu (menu_name, menu_price) VALUES
 ('Classic Burger', 10),

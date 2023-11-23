@@ -7,7 +7,6 @@
 {% block body %}
     <div class="container">
         <h2>Staff Reviews</h2>
-
         <!-- Add Review Form -->
         <form method="POST" action="/review">
             <label for="customer_id">Customer ID:</label>
@@ -15,6 +14,9 @@
             
             <label for="staff_id">Staff ID:</label>
             <input type="text" name="staff_id" required>
+
+            <label for = "review_text">Review:</label>
+            <input type = "text" name= "review_text" >
             
             <input type="submit" name="add_review" value="Add Review">
         </form>

@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <title>Order Management</title>
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h2>Order Management</h2>
+
+        <!-- Add Order Form -->
+        <form method="POST" action="/order">
+            <h3>Add Order</h3>
+            <table class="table">
+                <tr>
+                    <td>Menu Item:</td>
+                    <td>
+                        <select name="menu_id" required>
+                            {% for item in menu %}
+                                <option value="{{ item[0] }}">{{ item[0] }} - ${{ item[1] }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Special Request:</td>
+                    <td><input type="text" name="special_request"></td>
+                </tr>
+                <tr>
+                    <td>Order Quantity:</td>
+                    <td><input type="number" name="order_quantity" required></td>
+                </tr>
+                <tr>
+                    <td>Customer ID:</td>
+                    <td><input type="number" name="customer_id" required></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><input type="submit" name="add_order" value="Add Order"></td>
+                </tr>
+            </table>
+        </form>
+
+<h3>Order List</h3>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Menu Item</th>
+            <th>Order Quantity</th>
+            <th>Customer ID</th>
+            <th>Table ID</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tbody>
+            {% for row in orders %}
+                <tr>
+                    <td>{{ row[0] }}</td>
+                    <td>{{ row[6] }}</td> <!-- Assuming that menu_name is the correct column index -->
+                    <td>{{ row[2] }}</td>
+                    <td>{{ row[3] }}</td>
+                    <td>{{ row[4] }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+</div>
+{% endblock %}
